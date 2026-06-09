@@ -285,6 +285,7 @@ def text_to_image(
 
     actual_size = VALID_SIZES.get(size, size)
     use_model = model or DEFAULT_MODEL
+    print(f"[AIGC] 调用模型: {use_model} | 尺寸: {actual_size} | 数量: {n}")
 
     # 根据模型选择调用方式
     if use_model == "wan2.7-image-pro":

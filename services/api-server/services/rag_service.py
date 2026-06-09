@@ -107,6 +107,7 @@ def _get_llm():
             openai_api_key=LLM_API_KEY,
             openai_api_base=LLM_BASE_URL,
         )
+        print(f"[RAG] LLM 初始化: {LLM_MODEL} @ {LLM_BASE_URL}")
     return _llm
 
 # Prompt 模板
@@ -204,6 +205,7 @@ def query_knowledge(question: str) -> dict:
     combine_docs_chain = create_stuff_documents_chain(_get_llm(), prompt_template)
     rag_chain = create_retrieval_chain(retriever, combine_docs_chain)
 
+    print(f"[RAG] 调用模型: {LLM_MODEL} | 检索到 {len(relevant_docs)} 个文档块")
     result = rag_chain.invoke({"input": question})
 
     # 提取来源

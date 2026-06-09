@@ -140,12 +140,14 @@ def _get_llm():
             openai_api_key=LLM_API_KEY,
             openai_api_base=LLM_BASE_URL,
         )
+        print(f"[Trainer] LLM 初始化: {LLM_MODEL} @ {LLM_BASE_URL}")
     return _llm
 
 
 def _call_llm(system_prompt: str, user_content: str) -> str:
     """调用 LLM 并返回输出"""
     llm = _get_llm()
+    print(f"[Trainer] 调用模型: {LLM_MODEL}")
     messages = []
     if system_prompt.strip():
         messages.append(SystemMessage(content=system_prompt))

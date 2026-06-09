@@ -147,6 +147,7 @@ def _build_llm_chain():
         openai_api_key=LLM_API_KEY,
         openai_api_base=LLM_BASE_URL,
     )
+    print(f"[Chat] LLM 初始化: {LLM_MODEL} @ {LLM_BASE_URL}")
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", DESIGN_CONSULTANT_PROMPT),
@@ -181,6 +182,7 @@ async def _chat_llm(message: str, conversation_id: str | None = None) -> dict:
             langchain_history.append(AIMessage(content=h["content"]))
 
     chain = _get_chain()
+    print(f"[Chat] 调用模型: {LLM_MODEL} | 模式: LLM | 历史轮数: {len(history)}")
     result = await chain.ainvoke({
         "history": langchain_history,
         "input": message,

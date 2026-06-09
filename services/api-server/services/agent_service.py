@@ -235,6 +235,7 @@ def _get_agent():
             tools=tools,
             system_prompt=DESIGN_REVIEW_SYSTEM_PROMPT,
         )
+        print(f"[Agent] Agent 初始化: {LLM_MODEL} @ {LLM_BASE_URL}")
     return _agent
 
 
@@ -283,6 +284,7 @@ def review_design(image_path: str) -> dict:
             f"请按照流程逐步分析，最后给出完整的审查报告。"
         )
 
+        print(f"[Agent] 调用模型: {LLM_MODEL} | 模式: Agent | 图片: {w}x{h}")
         result = agent.invoke(
             {"messages": [{"role": "user", "content": task}]}
         )
@@ -363,6 +365,7 @@ def quick_analyze(image_path: str) -> dict:
 
 只输出报告，不要额外解释。"""
 
+    print(f"[Agent] 调用模型: {LLM_MODEL} | 模式: Quick")
     response = llm.invoke(prompt)
 
     try:
