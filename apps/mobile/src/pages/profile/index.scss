@@ -1,0 +1,132 @@
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 32px 32px;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  margin: 0 16px 24px;
+  border-radius: 24px;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 60px;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  margin-bottom: 16px;
+  border: 4px solid rgba(255, 255, 255, 0.4);
+}
+
+.profile-name {
+  font-size: 36px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.profile-bio {
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 8px;
+}
+
+// API 状态
+.api-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.api-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  background: #9ca3af;
+}
+
+.api-status--online .api-dot { background: #22c55e; }
+.api-status--offline .api-dot { background: #f59e0b; }
+.api-status--checking .api-dot { background: #9ca3af; animation: pulse 1s infinite; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.api-text {
+  font-size: 22px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+// 菜单列表
+.menu-list {
+  background: var(--color-bg-card);
+  border-radius: 24px;
+  margin: 0 16px;
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 28px 24px;
+  border-bottom: 1px solid var(--color-border);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: var(--color-bg);
+  }
+}
+
+.menu-icon {
+  font-size: 40px;
+  margin-right: 20px;
+  width: 56px;
+  text-align: center;
+}
+
+.menu-content {
+  flex: 1;
+}
+
+.menu-title {
+  display: block;
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.menu-desc {
+  display: block;
+  font-size: 24px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+.menu-arrow {
+  font-size: 36px;
+  color: var(--color-border);
+}
+
+// 底部
+.profile-footer {
+  text-align: center;
+  padding: 48px 0 32px;
+}
+
+.footer-text {
+  display: block;
+  font-size: 22px;
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+}

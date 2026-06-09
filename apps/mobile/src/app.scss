@@ -1,0 +1,109 @@
+/**
+ * 灵思AI设计 — 小程序全局样式
+ */
+
+// ============ CSS 变量（设计令牌） ============
+
+page {
+  --color-primary: #7c3aed;
+  --color-primary-light: #a78bfa;
+  --color-bg: #f5f3ff;
+  --color-bg-card: #ffffff;
+  --color-text: #1a1a2e;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  font-size: 28px; // Taro 基准：28rpx = 14px
+  line-height: 1.6;
+}
+
+// ============ 通用组件样式 ============
+
+// 卡片
+.card {
+  background: var(--color-bg-card);
+  border-radius: 24px;
+  padding: 24px;
+  margin: 16px;
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.08);
+}
+
+// 主按钮
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 32px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+
+  &:active {
+    opacity: 0.85;
+    transform: scale(0.97);
+  }
+}
+
+// 标签
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 16px;
+  border-radius: 999px;
+  font-size: 22px;
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--color-primary);
+}
+
+// 输入框
+.input-field {
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 28px;
+  box-sizing: border-box;
+
+  &:focus {
+    border-color: var(--color-primary);
+  }
+}
+
+// 布局
+.page-container {
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+.section-title {
+  font-size: 34px;
+  font-weight: 700;
+  padding: 24px 32px 16px;
+  color: var(--color-text);
+}
+
+// 瀑布流
+.waterfall {
+  display: flex;
+  padding: 8px 16px;
+  gap: 16px;
+}
+
+.waterfall-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

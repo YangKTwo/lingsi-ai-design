@@ -1,0 +1,28 @@
+.hero {
+  padding: 40px 32px 24px;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  margin: 0 16px 16px;
+  border-radius: 24px;
+
+  &__title {
+    display: block;
+    font-size: 40px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  &__subtitle {
+    display: block;
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 8px;
+  }
+}
+
+.loading-hint {
+  display: flex;
+  justify-content: center;
+  padding: 80px 0;
+  font-size: 28px;
+  color: var(--color-text-secondary);
+}

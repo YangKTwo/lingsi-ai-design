@@ -1,0 +1,66 @@
+.design-card {
+  background: var(--color-bg-card);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.06);
+  transition: transform 0.2s;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &__image {
+    width: 100%;
+    display: block;
+    background: var(--color-bg);
+  }
+
+  &__body {
+    padding: 20px;
+  }
+
+  &__title {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__desc {
+    font-size: 24px;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  &__author {
+    font-size: 22px;
+    color: var(--color-text-secondary);
+  }
+
+  &__likes {
+    font-size: 22px;
+    color: var(--color-text-secondary);
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
