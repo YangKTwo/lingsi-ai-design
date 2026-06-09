@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import {
   Sparkles, Zap, Download, Heart, ImageIcon, Upload,
   Loader2, Grid3X3, Square, RectangleHorizontal,
-  RectangleVertical, Monitor, X, Maximize2, Check, Copy
+  RectangleVertical, Monitor, X, Maximize2, Check, Copy, AlertCircle
 } from 'lucide-react'
 
 const API = 'http://localhost:8000/api/aigc'
@@ -603,6 +603,7 @@ function ResultCard({
   onEnlarge: () => void
 }) {
   const [loaded, setLoaded] = useState(false)
+  const [imgError, setImgError] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const copyUrl = async () => {
@@ -619,20 +620,29 @@ function ResultCard({
     <div className="glass-card overflow-hidden group rounded-2xl border border-[var(--border)] bg-[var(--bg-card)]">
       {/* 图片 */}
       <div className="relative aspect-square bg-[var(--bg-secondary)] overflow-hidden">
-        {!loaded && (
+        {!loaded && !imgError && (
           <div className="absolute inset-0 flex items-center justify-center">
             <Loader2 className="w-6 h-6 text-[var(--text-secondary)] animate-spin" />
           </div>
         )}
-        <img
-          src={url}
-          alt={`生成结果 ${index + 1}`}
-          className={`w-full h-full object-cover transition-all duration-500 cursor-pointer ${
-            loaded ? 'opacity-100' : 'opacity-0'
-          } group-hover:scale-105`}
-          onLoad={() => setLoaded(true)}
-          onClick={onEnlarge}
-        />
+        {imgError && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[var(--text-secondary)]">
+            <AlertCircle className="w-8 h-8" />
+            <span className="text-xs">图片加载失败</span>
+          </div>
+        )}
+        {!imgError && (
+          <img
+            src={url}
+            alt={`生成结果 ${index + 1}`}
+            className={`w-full h-full object-cover transition-all duration-500 cursor-pointer ${
+              loaded ? 'opacity-100' : 'opacity-0'
+            } group-hover:scale-105`}
+            onLoad={() => setLoaded(true)}
+            onError={() => setImgError(true)}
+            onClick={onEnlarge}
+          />
+        )}
         {/* Hover 操作栏 */}
         <div className="absolute inset-x-0 bottom-0 p-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0 bg-gradient-to-t from-black/60 to-transparent pt-8">
           <button

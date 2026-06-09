@@ -97,13 +97,13 @@ def text_to_image(
         )
 
         if result.status_code == HTTPStatus.OK:
-            # 检查输出
+            # 检查输出 — 兼容 ImageSynthesisResult 对象和 dict 两种格式
             images = []
             if hasattr(result.output, "results"):
-                images = [r.get("url", "") for r in result.output.results if r.get("url")]
-            elif isinstance(result.output, dict):
-                results = result.output.get("results", [])
-                images = [r.get("url", "") for r in results if r.get("url")]
+                for r in result.output.results:
+                    url = getattr(r, "url", "") or (r.get("url", "") if isinstance(r, dict) else "")
+                    if url:
+                        images.append(url)
 
             return {
                 "status": "ok",
@@ -181,10 +181,10 @@ def style_transfer(
         if result.status_code == HTTPStatus.OK:
             images = []
             if hasattr(result.output, "results"):
-                images = [r.get("url", "") for r in result.output.results if r.get("url")]
-            elif isinstance(result.output, dict):
-                results = result.output.get("results", [])
-                images = [r.get("url", "") for r in results if r.get("url")]
+                for r in result.output.results:
+                    url = getattr(r, "url", "") or (r.get("url", "") if isinstance(r, dict) else "")
+                    if url:
+                        images.append(url)
 
             return {
                 "status": "ok",
