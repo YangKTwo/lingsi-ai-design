@@ -11,16 +11,22 @@ load_dotenv()
 # 向量数据库持久化路径
 CHROMA_PATH = Path(__file__).parent.parent / "data" / "chromadb"
 
-# LLM 配置：优先用千问（国内），其次 OpenAI
-LLM_API_KEY = os.getenv("DASHSCOPE_API_KEY") or os.getenv("OPENAI_API_KEY")
-LLM_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-LLM_MODEL = "qwen-turbo" if os.getenv("DASHSCOPE_API_KEY") else "gpt-4o-mini"
+# ============ 可通过 .env 覆盖的配置 ============
 
-if os.getenv("DASHSCOPE_API_KEY"):
-    LLM_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-    EMBEDDING_MODEL = "text-embedding-v2"
-else:
-    EMBEDDING_MODEL = "text-embedding-3-small"
+# LLM 模型（默认千问，换成 gpt-4o-mini / deepseek-chat 等都行）
+LLM_MODEL = os.getenv("LLM_MODEL", "qwen-turbo")
+
+# LLM API 地址
+LLM_BASE_URL = os.getenv(
+    "LLM_BASE_URL",
+    "https://dashscope.aliyuncs.com/compatible-mode/v1",
+)
+
+# LLM API Key
+LLM_API_KEY = os.getenv("LLM_API_KEY", "")
+
+# Embedding 向量化模型
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-v2")
 
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
