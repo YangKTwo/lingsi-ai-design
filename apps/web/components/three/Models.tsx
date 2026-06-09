@@ -2,7 +2,6 @@
 
 import { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 
 // ==================== 杯子模型 ====================
@@ -25,7 +24,6 @@ export function MugModel({ color = '#ffffff', designUrl }: { color?: string; des
           color={color}
           metalness={0.05}
           roughness={0.35}
-          envMapIntensity={hovered ? 1.2 : 0.8}
         />
       </mesh>
       {/* 杯柄 */}
@@ -67,7 +65,6 @@ export function PosterModel({ color = '#f5f5f5', designUrl }: { color?: string; 
           color={color}
           metalness={0.02}
           roughness={0.5}
-          envMapIntensity={hovered ? 1.2 : 0.8}
         />
       </mesh>
       {/* 玻璃 */}
@@ -107,7 +104,6 @@ export function TShirtModel({ color = '#ffffff', designUrl }: { color?: string; 
           color={color}
           metalness={0.02}
           roughness={0.7}
-          envMapIntensity={hovered ? 1.2 : 0.8}
         />
       </mesh>
       {/* 左袖 */}
@@ -149,7 +145,6 @@ export function PhoneCaseModel({ color = '#333333', designUrl }: { color?: strin
           color={color}
           metalness={0.1}
           roughness={0.3}
-          envMapIntensity={hovered ? 1.2 : 0.8}
         />
       </mesh>
       {/* 屏幕 */}

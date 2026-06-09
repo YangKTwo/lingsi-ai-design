@@ -1,8 +1,8 @@
 'use client'
 
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment, ContactShadows, Grid, PerspectiveCamera } from '@react-three/drei'
-import { Suspense, useState } from 'react'
+import { OrbitControls, ContactShadows, Grid, PerspectiveCamera } from '@react-three/drei'
+import { Suspense } from 'react'
 import { MugModel, PosterModel, TShirtModel, PhoneCaseModel } from './Models'
 import { Loader2 } from 'lucide-react'
 
@@ -48,17 +48,17 @@ export function Scene3D({ activeModel, modelColor }: Scene3DProps) {
           <PerspectiveCamera makeDefault position={[0, 0.8, 5.5]} fov={45} />
 
           {/* 光照 */}
-          <ambientLight intensity={0.4} />
+          <ambientLight intensity={0.7} />
           <directionalLight
             position={[5, 8, 5]}
-            intensity={1.5}
+            intensity={2}
             castShadow
             shadow-mapSize-width={1024}
             shadow-mapSize-height={1024}
             shadow-radius={4}
           />
-          <directionalLight position={[-3, 2, -2]} intensity={0.5} />
-          <spotLight position={[0, 5, 3]} intensity={0.6} angle={0.3} penumbra={0.5} />
+          <directionalLight position={[-3, 2, -2]} intensity={0.8} />
+          <spotLight position={[0, 5, 3]} intensity={1} angle={0.3} penumbra={0.5} />
 
           {/* 模型 */}
           <ModelRenderer activeModel={activeModel} modelColor={modelColor} />
@@ -84,9 +84,6 @@ export function Scene3D({ activeModel, modelColor }: Scene3DProps) {
             fadeDistance={20}
             fadeStrength={1.5}
           />
-
-          {/* HDR 环境光 */}
-          <Environment preset="studio" />
 
           {/* 轨道控制 */}
           <OrbitControls
