@@ -30,11 +30,47 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-v2")
 
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain_community.vectorstores import Chroma
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_classic.chains import create_retrieval_chain
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.embeddings import Embeddings
+
+
+# ============ 自定义 Embedding（兼容千问原生 API） ============
+
+class DashScopeEmbeddings(Embeddings):
+    """使用 DashScope 原生 API 做文本向量化，避免 OpenAI 兼容层格式问题"""
+
+    def __init__(self, api_key: str, model: str = "text-embedding-v2"):
+        import dashscope
+        self.api_key = api_key
+        self.model = model
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        import dashscope
+        from http import HTTPStatus
+        result = dashscope.TextEmbedding.call(
+            model=self.model,
+            api_key=self.api_key,
+            input=texts,
+        )
+        if result.status_code != HTTPStatus.OK:
+            raise RuntimeError(f"Embedding 失败: {result.message}")
+        return [item["embedding"] for item in result.output["embeddings"]]
+
+    def embed_query(self, text: str) -> list[float]:
+        import dashscope
+        from http import HTTPStatus
+        result = dashscope.TextEmbedding.call(
+            model=self.model,
+            api_key=self.api_key,
+            input=text,
+        )
+        if result.status_code != HTTPStatus.OK:
+            raise RuntimeError(f"Embedding 失败: {result.message}")
+        return result.output["embeddings"][0]["embedding"]
 
 
 # ============ 懒加载初始化 ============
@@ -46,11 +82,19 @@ _llm = None
 def _get_embedding():
     global _embedding
     if _embedding is None:
-        _embedding = OpenAIEmbeddings(
-            model=EMBEDDING_MODEL,
-            openai_api_key=LLM_API_KEY,
-            openai_api_base=LLM_BASE_URL,
-        )
+        # DashScope 用原生 API（格式不一样）
+        if "dashscope" in LLM_BASE_URL:
+            _embedding = DashScopeEmbeddings(
+                api_key=LLM_API_KEY,
+                model=EMBEDDING_MODEL,
+            )
+        else:
+            from langchain_openai import OpenAIEmbeddings
+            _embedding = OpenAIEmbeddings(
+                model=EMBEDDING_MODEL,
+                openai_api_key=LLM_API_KEY,
+                openai_api_base=LLM_BASE_URL,
+            )
     return _embedding
 
 
