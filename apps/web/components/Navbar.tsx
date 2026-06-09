@@ -10,6 +10,7 @@ const links = [
   { label: '知识库', href: '/knowledge' },
   { label: 'Agent', href: '/agent' },
   { label: 'AIGC', href: '/aigc' },
+  { label: '对话', href: '/chat' },
   { label: '训练师', href: '/trainer' },
 ]
 
