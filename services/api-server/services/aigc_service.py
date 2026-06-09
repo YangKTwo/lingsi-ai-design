@@ -1,21 +1,29 @@
 """
-AIGC 服务 — 通义万相 (wanx-v1) 文生图 & 图生图
+AIGC 服务 — 通义万相 文生图 & 图生图
 
-DashScope ImageSynthesis API：
-  - 文生图: wanx-v1，输入 prompt → 输出 1-4 张图片 URL
-  - 图生图/风格迁移: 输入参考图 + prompt → 风格化输出
+模型：
+  - wan2.7-image-pro (默认): 最新旗舰模型，HTTP 异步 API + messages 格式
+  - wanx-v1 (回退): 旧版模型，SDK ImageSynthesis.call() 同步 API
+
+DashScope 无 SDK 原生支持 wan2.7，用 requests 直调 HTTP API。
 """
 import os
 import time
 import base64
-import tempfile
+import requests
 from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# API Key：优先用 DASHSCOPE_API_KEY，回退到 LLM_API_KEY
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY") or os.getenv("LLM_API_KEY", "")
+
+# 默认模型
+DEFAULT_MODEL = os.getenv("IMAGE_MODEL", "wan2.7-image-pro")
+
+# API 地址
+GENERATION_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/image-generation/generation"
+TASK_URL = "https://dashscope.aliyuncs.com/api/v1/tasks/{task_id}"
 
 import dashscope
 from dashscope import ImageSynthesis
@@ -23,18 +31,16 @@ from http import HTTPStatus
 
 
 # ============================================================
-# 文生图
+# 配置
 # ============================================================
 
-# 支持的尺寸
 VALID_SIZES = {
-    "square": "1024*1024",       # 正方形，头像/图标
-    "landscape": "1152*864",     # 横版，Banner/封面
-    "portrait": "864*1152",      # 竖版，海报
-    "wide": "1664*928",          # 超宽，信息图
+    "square": "1024*1024",
+    "landscape": "1152*864",
+    "portrait": "864*1152",
+    "wide": "1664*928",
 }
 
-# 风格预设
 STYLE_PROMPTS = {
     "极简": "minimalist style, clean composition, simple geometric shapes, plenty of negative space, elegant",
     "赛博朋克": "cyberpunk style, neon lights, dark atmosphere, futuristic city, high tech, low life, vibrant colors",
@@ -47,33 +53,227 @@ STYLE_PROMPTS = {
 }
 
 
+# ============================================================
+# wan2.7-image-pro（HTTP 异步 API）
+# ============================================================
+
+def _generate_wan27(prompt: str, n: int, size: str) -> dict:
+    """
+    wan2.7-image-pro: HTTP 异步提交 + 轮询结果
+
+    新版 API 使用 messages 格式而非纯文本 prompt。
+    """
+    headers = {
+        "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+        "Content-Type": "application/json",
+        "X-DashScope-Async": "enable",
+    }
+
+    body = {
+        "model": "wan2.7-image-pro",
+        "input": {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [{"text": prompt}],
+                }
+            ]
+        },
+        "parameters": {"n": n, "size": size},
+    }
+
+    # 1. 提交任务
+    resp = requests.post(GENERATION_URL, headers=headers, json=body, timeout=30)
+    if resp.status_code != 200:
+        return {
+            "status": "error",
+            "message": f"提交失败 [{resp.status_code}]: {resp.text[:300]}",
+        }
+
+    data = resp.json()
+    task_id = data.get("output", {}).get("task_id", "")
+    if not task_id:
+        return {"status": "error", "message": f"未获取到 task_id: {resp.text[:300]}"}
+
+    # 2. 轮询结果（最多等 2 分钟）
+    task_url = TASK_URL.format(task_id=task_id)
+    for _ in range(40):
+        time.sleep(3)
+        r = requests.get(task_url, headers=headers, timeout=30)
+        d = r.json()
+        status = d.get("output", {}).get("task_status", "UNKNOWN")
+
+        if status == "SUCCEEDED":
+            # wan2.7 返回结构: output.choices[].message.content[].image
+            choices = d.get("output", {}).get("choices", [])
+            images = []
+            for choice in choices:
+                content_list = choice.get("message", {}).get("content", [])
+                for item in content_list:
+                    img_url = item.get("image", "")
+                    if img_url:
+                        images.append(img_url)
+            return {
+                "status": "ok",
+                "images": images,
+                "prompt": prompt,
+                "model": "wan2.7-image-pro",
+                "task_id": task_id,
+            }
+        elif status == "FAILED":
+            return {
+                "status": "error",
+                "message": f"生成失败: {d.get('output', {}).get('message', '未知错误')}",
+            }
+        # RUNNING / PENDING → 继续等
+
+    return {"status": "error", "message": "生成超时（2分钟），请重试"}
+
+
+def _style_transfer_wan27(image_data_url: str, prompt: str) -> dict:
+    """
+    wan2.7 图生图：messages 中同时传入 image 和 text
+    """
+    headers = {
+        "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+        "Content-Type": "application/json",
+        "X-DashScope-Async": "enable",
+    }
+
+    body = {
+        "model": "wan2.7-image-pro",
+        "input": {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"image": image_data_url},
+                        {"text": prompt},
+                    ],
+                }
+            ]
+        },
+        "parameters": {"n": 2, "size": "1024*1024"},
+    }
+
+    resp = requests.post(GENERATION_URL, headers=headers, json=body, timeout=30)
+    if resp.status_code != 200:
+        return {"status": "error", "message": f"提交失败: {resp.text[:300]}"}
+
+    data = resp.json()
+    task_id = data.get("output", {}).get("task_id", "")
+    if not task_id:
+        return {"status": "error", "message": f"未获取到 task_id"}
+
+    task_url = TASK_URL.format(task_id=task_id)
+    for _ in range(40):
+        time.sleep(3)
+        r = requests.get(task_url, headers=headers, timeout=30)
+        d = r.json()
+        status = d.get("output", {}).get("task_status", "UNKNOWN")
+
+        if status == "SUCCEEDED":
+            # wan2.7 返回结构: output.choices[].message.content[].image
+            choices = d.get("output", {}).get("choices", [])
+            images = []
+            for choice in choices:
+                content_list = choice.get("message", {}).get("content", [])
+                for item in content_list:
+                    img_url = item.get("image", "")
+                    if img_url:
+                        images.append(img_url)
+            return {
+                "status": "ok",
+                "images": images,
+                "prompt": prompt,
+                "model": "wan2.7-image-pro",
+                "task_id": task_id,
+            }
+        elif status == "FAILED":
+            return {"status": "error", "message": "风格迁移失败"}
+
+    return {"status": "error", "message": "风格迁移超时，请重试"}
+
+
+# ============================================================
+# wanx-v1（旧 SDK，回退用）
+# ============================================================
+
+def _generate_wanx(prompt: str, n: int, size: str, negative_prompt: str = "") -> dict:
+    """wanx-v1: SDK 同步调用"""
+    result = ImageSynthesis.call(
+        model="wanx-v1",
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        n=n,
+        size=size,
+        api_key=DASHSCOPE_API_KEY,
+    )
+
+    if result.status_code == HTTPStatus.OK:
+        images = []
+        if hasattr(result.output, "results"):
+            for r in result.output.results:
+                url = getattr(r, "url", "") or (r.get("url", "") if isinstance(r, dict) else "")
+                if url:
+                    images.append(url)
+
+        return {
+            "status": "ok",
+            "images": images,
+            "prompt": prompt,
+            "model": "wanx-v1",
+            "task_id": getattr(result.output, "task_id", ""),
+        }
+    else:
+        return {"status": "error", "message": f"生成失败: {result.message}"}
+
+
+def _style_transfer_wanx(image_data_url: str, prompt: str) -> dict:
+    """wanx-v1 图生图"""
+    result = ImageSynthesis.call(
+        model="wanx-v1",
+        prompt=prompt,
+        ref_img=image_data_url,
+        n=2,
+        size="1024*1024",
+        api_key=DASHSCOPE_API_KEY,
+    )
+
+    if result.status_code == HTTPStatus.OK:
+        images = []
+        if hasattr(result.output, "results"):
+            for r in result.output.results:
+                url = getattr(r, "url", "") or (r.get("url", "") if isinstance(r, dict) else "")
+                if url:
+                    images.append(url)
+
+        return {
+            "status": "ok",
+            "images": images,
+            "prompt": prompt,
+            "model": "wanx-v1",
+            "task_id": getattr(result.output, "task_id", ""),
+        }
+    else:
+        return {"status": "error", "message": f"风格迁移失败: {result.message}"}
+
+
+# ============================================================
+# 统一对外接口
+# ============================================================
+
 def text_to_image(
     prompt: str,
     n: int = 2,
     size: str = "square",
     negative_prompt: str | None = None,
     style: str | None = None,
+    model: str | None = None,
 ) -> dict:
-    """
-    文本生成设计灵感图
-
-    Args:
-        prompt: 画面描述
-        n: 生成数量 (1-4)
-        size: 尺寸 key (square/landscape/portrait/wide) 或如 "1024*1024"
-        negative_prompt: 负面提示词（不想要的内容）
-        style: 风格预设名称
-
-    Returns:
-        {
-            "status": "ok" | "error",
-            "images": ["url1", "url2", ...],
-            "prompt": "最终使用的 prompt",
-            "task_id": "..."
-        }
-    """
+    """文本生成设计灵感图"""
     if not DASHSCOPE_API_KEY:
-        return {"status": "error", "message": "未配置 DASHSCOPE_API_KEY 或 LLM_API_KEY"}
+        return {"status": "error", "message": "未配置 API Key"}
 
     if not prompt.strip():
         return {"status": "error", "message": "prompt 不能为空"}
@@ -83,83 +283,37 @@ def text_to_image(
     if style and style in STYLE_PROMPTS:
         full_prompt = f"{full_prompt}, {STYLE_PROMPTS[style]}"
 
-    # 解析尺寸
     actual_size = VALID_SIZES.get(size, size)
+    use_model = model or DEFAULT_MODEL
 
-    try:
-        result = ImageSynthesis.call(
-            model="wanx-v1",
-            prompt=full_prompt,
-            negative_prompt=negative_prompt or "",
-            n=n,
-            size=actual_size,
-            api_key=DASHSCOPE_API_KEY,
-        )
+    # 根据模型选择调用方式
+    if use_model == "wan2.7-image-pro":
+        return _generate_wan27(full_prompt, n, actual_size)
+    else:
+        return _generate_wanx(full_prompt, n, actual_size, negative_prompt or "")
 
-        if result.status_code == HTTPStatus.OK:
-            # 检查输出 — 兼容 ImageSynthesisResult 对象和 dict 两种格式
-            images = []
-            if hasattr(result.output, "results"):
-                for r in result.output.results:
-                    url = getattr(r, "url", "") or (r.get("url", "") if isinstance(r, dict) else "")
-                    if url:
-                        images.append(url)
-
-            return {
-                "status": "ok",
-                "images": images,
-                "prompt": full_prompt,
-                "task_id": getattr(result.output, "task_id", ""),
-            }
-        else:
-            return {
-                "status": "error",
-                "message": f"生成失败: {result.message} (code: {result.status_code})",
-            }
-    except Exception as e:
-        return {"status": "error", "message": f"调用异常: {str(e)}"}
-
-
-# ============================================================
-# 图生图 / 风格迁移
-# ============================================================
 
 def style_transfer(
     image_path: str,
     prompt: str = "",
     style: str | None = None,
     strength: float = 0.7,
+    model: str | None = None,
 ) -> dict:
-    """
-    以参考图为底版进行风格迁移。
-
-    通义万相支持的方式：
-      - 将图片转为 base64 data URL 或上传到可访问的 URL
-      - 使用 ref_img 参数传入参考图
-
-    Args:
-        image_path: 参考图本地路径
-        prompt: 风格描述
-        style: 风格预设名称
-        strength: 风格强度 (0-1)，越大越偏离原图
-
-    Returns:
-        {"status": "ok", "images": [...], "prompt": "..."}
-    """
+    """以参考图为底版进行风格迁移"""
     if not DASHSCOPE_API_KEY:
         return {"status": "error", "message": "未配置 API Key"}
 
     if not os.path.exists(image_path):
         return {"status": "error", "message": f"图片不存在: {image_path}"}
 
-    # 读取图片并转为 base64 data URL（通义万相支持）
-    with open(image_path, "rb") as f:
-        image_data = base64.b64encode(f.read()).decode("utf-8")
-
-    # 判断图片类型
+    # 图片转 base64 data URL
     ext = os.path.splitext(image_path)[1].lower()
     mime_map = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
     mime_type = mime_map.get(ext, "image/png")
+
+    with open(image_path, "rb") as f:
+        image_data = base64.b64encode(f.read()).decode("utf-8")
     data_url = f"data:{mime_type};base64,{image_data}"
 
     # 拼接 prompt
@@ -167,54 +321,19 @@ def style_transfer(
     if style and style in STYLE_PROMPTS:
         full_prompt = f"{full_prompt}, {STYLE_PROMPTS[style]}"
 
-    try:
-        # 使用 ref_img 参数传入参考图
-        result = ImageSynthesis.call(
-            model="wanx-v1",
-            prompt=full_prompt,
-            ref_img=data_url,
-            n=2,
-            size="1024*1024",
-            api_key=DASHSCOPE_API_KEY,
-        )
+    use_model = model or DEFAULT_MODEL
 
-        if result.status_code == HTTPStatus.OK:
-            images = []
-            if hasattr(result.output, "results"):
-                for r in result.output.results:
-                    url = getattr(r, "url", "") or (r.get("url", "") if isinstance(r, dict) else "")
-                    if url:
-                        images.append(url)
+    if use_model == "wan2.7-image-pro":
+        return _style_transfer_wan27(data_url, full_prompt)
+    else:
+        return _style_transfer_wanx(data_url, full_prompt)
 
-            return {
-                "status": "ok",
-                "images": images,
-                "prompt": full_prompt,
-                "task_id": getattr(result.output, "task_id", ""),
-            }
-        else:
-            return {
-                "status": "error",
-                "message": f"风格迁移失败: {result.message} (code: {result.status_code})",
-            }
-    except Exception as e:
-        return {"status": "error", "message": f"调用异常: {str(e)}"}
-
-
-# ============================================================
-# 工具函数
-# ============================================================
 
 def get_styles() -> list[dict]:
-    """返回可用风格列表"""
-    return [
-        {"key": k, "label": k, "prompt": v[:80] + "..."}
-        for k, v in STYLE_PROMPTS.items()
-    ]
+    return [{"key": k, "label": k, "prompt": v[:80] + "..."} for k, v in STYLE_PROMPTS.items()]
 
 
 def get_sizes() -> dict:
-    """返回可用尺寸"""
     return {
         "square": {"label": "正方形 1024x1024", "desc": "适合头像/图标"},
         "landscape": {"label": "横版 1152x864", "desc": "适合 Banner/封面"},
