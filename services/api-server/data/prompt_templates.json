@@ -1,0 +1,39 @@
+[
+  {
+    "id": "tpl-001",
+    "name": "设计审查 v1",
+    "system_prompt": "你是一位资深设计审查专家。",
+    "content": "请审查以下设计稿文案：\n\n{text}\n\n从以下维度分析：\n1. 可读性\n2. 版式规范\n3. 品牌一致性\n\n输出格式：每项打分 (1-10) + 一句话建议。",
+    "version": 1,
+    "variables": [
+      "text"
+    ],
+    "created_at": "2026-06-09 16:03"
+  },
+  {
+    "id": "tpl-002",
+    "name": "配色推荐 v2",
+    "system_prompt": "你是一位专业的配色专家，精通色彩理论和品牌设计。",
+    "content": "请为 {brand_type} 推荐一套配色方案。\n\n行业：{industry}\n品牌调性：{tone}\n\n输出：\n1. 主色（含十六进制值）\n2. 辅色（2-3 个）\n3. 搭配建议\n4. 色盲友好度评估",
+    "version": 2,
+    "variables": [
+      "brand_type",
+      "industry",
+      "tone"
+    ],
+    "created_at": "2026-06-09 16:03"
+  },
+  {
+    "id": "tpl-003",
+    "name": "灵感生成器 v1",
+    "system_prompt": "你是一位创意总监，擅长发散设计灵感。",
+    "content": "根据以下信息生成 5 个设计灵感方向：\n\n主题：{theme}\n目标用户：{audience}\n风格偏好：{style}\n\n每个方向包含：标题 + 一句话描述 + 关键词标签",
+    "version": 1,
+    "variables": [
+      "theme",
+      "audience",
+      "style"
+    ],
+    "created_at": "2026-06-09 16:03"
+  }
+]
