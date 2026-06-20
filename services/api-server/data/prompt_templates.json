@@ -35,5 +35,18 @@
       "style"
     ],
     "created_at": "2026-06-09 16:03"
+  },
+  {
+    "id": "tpl-fef69fbc",
+    "name": "电商Banner文案生成",
+    "system_prompt": "你是一位电商文案专家，擅长写出高转化率的广告语。",
+    "content": " 请为 {product} 写 3 条 Banner 文案。\n    风格：{style}\n    关键词：{keyword}\n    每条不超过 15 字。",
+    "version": 2,
+    "variables": [
+      "keyword",
+      "product",
+      "style"
+    ],
+    "created_at": "2026-06-18 18:53"
   }
 ]

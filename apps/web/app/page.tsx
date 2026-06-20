@@ -16,46 +16,46 @@ import { GlassCard } from '@/components/ui/GlassCard'
 const features = [
   {
     icon: Palette,
-    title: 'AI 设计工作区',
-    desc: 'Three.js 3D 实时预览，将平面设计稿映射到产品模型，所见即所得',
+    title: '3D 产品预览',
+    desc: '上传设计图，实时贴在杯子/T恤/海报/手机壳上，360° 旋转看效果，不用实拍打样',
     href: '/workspace',
     color: 'from-violet-500 to-purple-500',
   },
   {
-    icon: Search,
-    title: '设计知识库',
-    desc: 'RAG 检索增强生成，基于设计规范文档智能问答，告别翻阅 PDF',
-    href: '/knowledge',
-    color: 'from-blue-500 to-cyan-500',
-  },
-  {
-    icon: Bot,
-    title: 'AI Agent',
-    desc: '多 Agent 协同工作，自动审查设计稿的对比度、间距、字体层级',
-    href: '/agent',
-    color: 'from-emerald-500 to-teal-500',
-  },
-  {
     icon: Zap,
-    title: 'AIGC 引擎',
-    desc: '文生图 / 风格迁移 / 灵感生成，接入业内主流生成模型',
+    title: 'AI 生成设计',
+    desc: '输入「夏日清凉 T 恤图案」，AI 出 4 版方案，8 种风格随心换',
     href: '/aigc',
     color: 'from-orange-500 to-rose-500',
   },
   {
+    icon: Bot,
+    title: '智能设计审查',
+    desc: '上传设计稿 → AI 自动检查对比度/尺寸/配色合规，上架前最后一道关',
+    href: '/agent',
+    color: 'from-emerald-500 to-teal-500',
+  },
+  {
+    icon: Search,
+    title: '品牌规范知识库',
+    desc: '上传品牌 VI 手册 / 平台素材规范，AI 即时回答合规问题',
+    href: '/knowledge',
+    color: 'from-blue-500 to-cyan-500',
+  },
+  {
     icon: UserCheck,
-    title: 'AI 训练师',
-    desc: 'Prompt 工程管理、LoRA 微调面板、模型效果 A/B 评估',
+    title: 'Prompt 工作台',
+    desc: '沉淀爆款设计 Prompt，一键批量出图，A/B 测试找最优版本',
     href: '/trainer',
     color: 'from-pink-500 to-fuchsia-500',
   },
 ]
 
 const steps = [
-  { emoji: '📤', title: '上传设计', desc: '上传设计稿或描述需求' },
-  { emoji: '🤖', title: 'AI 分析', desc: 'RAG 检索 + Agent 审查' },
-  { emoji: '✨', title: '智能生成', desc: 'AIGC 生成灵感方案' },
-  { emoji: '💾', title: '导出使用', desc: '多格式导出，所见即所得' },
+  { emoji: '🎨', title: 'AI 生成', desc: '描述需求，AI 出设计稿' },
+  { emoji: '👀', title: '3D 预览', desc: '贴到产品模型看实景效果' },
+  { emoji: '🔍', title: '智能审查', desc: '自动检查合规性' },
+  { emoji: '🚀', title: '上架素材', desc: '截图/导出，多端上架' },
 ]
 
 export default function HomePage() {
@@ -74,29 +74,27 @@ export default function HomePage() {
           {/* 标签 */}
           <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-violet-50 dark:bg-violet-900/25 text-violet-600 dark:text-violet-400 text-xs font-medium mb-8 animate-fade-in border border-violet-200 dark:border-violet-800">
             <Sparkles className="w-3.5 h-3.5" />
-            AI Design · 灵思工作台 v0.1
+            AI 电商产品视觉设计平台
           </div>
 
           {/* 标题 */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
             <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 bg-clip-text text-transparent">
-              灵思 AI 设计
+              灵思 AI
             </span>
             <span className="block text-2xl sm:text-3xl lg:text-4xl font-medium text-[var(--text-primary)] mt-3">
-              让设计更智能
+              AI 生成设计 · 3D 预览效果 · 一键上架素材
             </span>
           </h1>
 
           <p className="text-base sm:text-lg text-[var(--text-secondary)] mb-10 max-w-2xl mx-auto leading-relaxed">
-            融合{' '}
-            <strong className="text-violet-600 dark:text-violet-400">3D 预览</strong>
+            为{' '}
+            <strong className="text-violet-600 dark:text-violet-400">POD 卖家</strong>
             {' '}·{' '}
-            <strong className="text-blue-600 dark:text-blue-400">RAG 知识检索</strong>
+            <strong className="text-blue-600 dark:text-blue-400">电商运营</strong>
             {' '}·{' '}
-            <strong className="text-emerald-600 dark:text-emerald-400">AI Agent</strong>
-            {' '}·{' '}
-            <strong className="text-orange-600 dark:text-orange-400">AIGC 生成</strong>
-            {' '}于一体的全栈智能设计协作平台
+            <strong className="text-emerald-600 dark:text-emerald-400">独立品牌</strong>
+            {' '}打造的一站式产品视觉设计工具。不用实拍打样，AI 出图 + 3D 预览 + 智能审查，几分钟搞定一套商品主图。
           </p>
 
           {/* AI 输入框 */}
@@ -106,7 +104,7 @@ export default function HomePage() {
                 type="text"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="描述你的设计需求，AI 将为你生成…"
+                placeholder="试试：夏日清凉 T 恤图案 · 国潮风手机壳 · 极简海报…"
                 className="flex-1 px-5 py-4 bg-transparent border-none outline-none text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/50"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') window.location.href = '/workspace'
@@ -117,11 +115,11 @@ export default function HomePage() {
                 className="shrink-0 mr-2 px-5 py-2.5 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-colors flex items-center gap-1.5"
               >
                 <Sparkles className="w-4 h-4" />
-                生成
+                开始设计
               </a>
             </div>
             <p className="text-xs text-[var(--text-secondary)] mt-3">
-              试试：极简海报 · 产品包装 · 品牌配色 · UI 界面
+              AI 出图 → 3D 预览 → 审查合规 → 上架，完整闭环
             </p>
           </div>
         </div>
@@ -147,11 +145,11 @@ export default function HomePage() {
         <div className="text-center mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
             <span className="bg-gradient-to-r from-violet-500 to-fuchsia-500 bg-clip-text text-transparent">
-              核心能力
+              从创意到上架
             </span>
           </h2>
           <p className="text-[var(--text-secondary)] max-w-xl mx-auto">
-            每个模块独立运作，任意组合使用，覆盖设计工作全流程
+            AI 设计 + 3D 预览 + 规范审查 + 批量出图，为电商卖家打造的全流程工具链
           </p>
         </div>
 
@@ -189,10 +187,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[var(--text-secondary)]">
           <div className="flex items-center gap-2">
             <Box className="w-4 h-4 text-violet-500" />
-            <span>灵思 AI 设计工作台 · LingSi AI Design Workstation</span>
+            <span>灵思 AI · 电商产品视觉设计平台</span>
           </div>
           <div className="flex items-center gap-6">
-            <span>Next.js 14 · Three.js · RAG · Agent · AIGC · Taro · Electron</span>
+            <span>AI 生成设计 · 3D 预览 · 智能审查 · 批量出图 · 多端交付</span>
           </div>
         </div>
       </footer>

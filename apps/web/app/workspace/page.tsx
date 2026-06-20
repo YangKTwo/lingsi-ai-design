@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Scene3D, type ProductType } from '@/components/three/Scene3D'
 import { Coffee, Shirt, Frame, Smartphone, Palette, Layers, RotateCcw } from 'lucide-react'
 
@@ -35,12 +35,25 @@ export default function WorkspacePage() {
   const [customColor, setCustomColor] = useState('#7c3aed')
   const [material, setMaterial] = useState('matte')
   const [designFile, setDesignFile] = useState<File | null>(null)
+  const [designUrl, setDesignUrl] = useState<string | undefined>()
+
+  // 将 File 对象转为 blob URL 供纹理加载
+  useEffect(() => {
+    if (designFile) {
+      const url = URL.createObjectURL(designFile)
+      setDesignUrl(url)
+      return () => URL.revokeObjectURL(url)
+    } else {
+      setDesignUrl(undefined)
+    }
+  }, [designFile])
 
   const resetAll = () => {
     setActiveModel('mug')
     setModelColor('#ffffff')
     setMaterial('matte')
     setDesignFile(null)
+    setDesignUrl(undefined)
   }
 
   return (
@@ -86,7 +99,7 @@ export default function WorkspacePage() {
         </div>
 
         {/* 3D 场景 */}
-        <Scene3D activeModel={activeModel} modelColor={modelColor} />
+        <Scene3D activeModel={activeModel} modelColor={modelColor} designUrl={designUrl} />
 
         {/* 底部缩略图导航 */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2">

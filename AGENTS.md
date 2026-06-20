@@ -6,9 +6,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ---
 
-# 灵思AI设计工作台
+# 灵思AI · 电商产品视觉设计平台
 
-> 全栈 AI 设计工具平台 — 详见 [README.md](./README.md)
+> 为 POD 卖家 / 电商运营 / 独立品牌提供 AI 设计 + 3D 预览 + 智能审查一站式工具。详见 [README.md](./README.md)
 
 ## 技术栈速查
 
