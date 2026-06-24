@@ -116,17 +116,15 @@ AI 生成设计 → 3D 产品预览 → 规范审查 → 批量出图 → 多端
 
 ## 作品展示
 
-### 3D 产品预览工作区
-
 ![3D预览-1](docs/images/1.png)
 ![3D预览-2](docs/images/2.png)
 
-### AI 设计审查 & AIGC 文生图
+
 
 ![审查-AIGC-1](docs/images/3.png)
 ![审查-AIGC-2](docs/images/4.png)
 
-### 知识库 & 对话 & 训练师
+
 
 ![知识库](docs/images/5.png)
 ![对话](docs/images/6.png)
