@@ -30,7 +30,9 @@ const isDev =
   process.argv.includes("--dev") ||
   !app.isPackaged;
 
-const WEB_URL = isDev ? "http://localhost:3000" : "http://localhost:3000";
+const WEB_URL = process.env.WEB_URL || (isDev ? "http://localhost:3000" : "http://localhost:3000");
+// 生产环境建议：先执行 pnpm build:web && pnpm start:web，再启动桌面端
+// 或者设置环境变量 WEB_URL 指向远程/本地服务地址
 
 const WIN_CONFIG = {
   width: 1400,

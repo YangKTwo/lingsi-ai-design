@@ -4,7 +4,11 @@
   "private": true,
   "scripts": {
     "dev:web": "pnpm -C apps/web dev",
+    "dev:desktop": "pnpm -C apps/desktop dev",
     "dev:api": "cd services/api-server && venv\\Scripts\\activate && uvicorn main:app --reload --port 8000",
-    "build:web": "pnpm -C apps/web build"
+    "build:web": "pnpm -C apps/web build",
+    "start:web": "pnpm -C apps/web start",
+    "build:desktop": "pnpm -C apps/desktop build",
+    "build:desktop:win": "pnpm -C apps/desktop build:win"
   }
 }

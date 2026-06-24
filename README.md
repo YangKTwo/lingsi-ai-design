@@ -114,13 +114,36 @@ AI 生成设计 → 3D 产品预览 → 规范审查 → 批量出图 → 多端
 
 ---
 
+## 作品展示
+
+### 3D 产品预览工作区
+
+![3D预览-1](docs/images/1.png)
+![3D预览-2](docs/images/2.png)
+
+### AI 设计审查 & AIGC 文生图
+
+![审查-AIGC-1](docs/images/3.png)
+![审查-AIGC-2](docs/images/4.png)
+
+### 知识库 & 对话 & 训练师
+
+![知识库](docs/images/5.png)
+![对话](docs/images/6.png)
+![训练师](docs/images/7.png)
+
+---
+
 ## 快速启动
 
 ### 1. 后端 API
 
 ```bash
 cd services/api-server
-cp .env.example .env          # 编辑 .env，填入 DashScope API Key
+
+# 首次运行：复制环境变量模板并填入你的 API Key
+cp .env.example .env          # 编辑 .env，填入 LLM_API_KEY 等配置
+
 pip install -r requirements.txt
 python -m uvicorn main:app --reload --port 8000
 ```
